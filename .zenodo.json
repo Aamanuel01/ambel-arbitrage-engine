@@ -1,0 +1,12 @@
+{
+  "title": "Ambel Arbitrage Engine",
+  "description": "An automated Flash Loan arbitrage engine bridging decentralized exchanges.",
+  "creators": [
+    {
+      "name": "Araya, Amanuel",
+      "orcid": "0009-0002-2136-0745"
+    }
+  ],
+  "upload_type": "software",
+  "access_right": "open"
+}
