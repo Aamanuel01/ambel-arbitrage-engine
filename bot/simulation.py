@@ -57,7 +57,7 @@ def run(fork_url: str | None = None) -> SimulationResult:
 
     env = {**os.environ, "POLYGON_WS_RPC_URL": rpc_url}
 
-    logger.info('"Running Foundry simulation: %s"', " ".join(cmd))
+    logger.info('Running Foundry simulation: %s', " ".join(cmd))
 
     try:
         result = subprocess.run(
@@ -69,17 +69,17 @@ def run(fork_url: str | None = None) -> SimulationResult:
             env=env,
         )
     except FileNotFoundError:
-        logger.error('"forge binary not found — is Foundry installed?"')
+        logger.error('forge binary not found — is Foundry installed?')
         return SimulationResult(success=False, simulated_profit_wei=0, gas_used=0, raw_output="")
     except subprocess.TimeoutExpired:
-        logger.error('"Foundry simulation timed out after 300s"')
+        logger.error('Foundry simulation timed out after 300s')
         return SimulationResult(success=False, simulated_profit_wei=0, gas_used=0, raw_output="")
 
     stdout = result.stdout or ""
     stderr = result.stderr or ""
     combined = stdout + stderr
 
-    logger.debug('"Forge stdout: %s"', stdout[:2000])
+    logger.debug('Forge stdout: %s', stdout[:2000])
 
     # Determine success: forge exits 0 and output contains no FAIL
     passed = result.returncode == 0 and "FAIL" not in stdout.upper()
@@ -93,14 +93,13 @@ def run(fork_url: str | None = None) -> SimulationResult:
     gas_used = int(gas_match.group(1)) if gas_match else 0
 
     if passed:
-        logger.info(
-            '"Simulation PASSED | profit=%d raw units | gas=%d"',
+        logger.info('Simulation PASSED | profit=%d raw units | gas=%d',
             simulated_profit,
             gas_used,
         )
     else:
-        logger.warning('"Simulation FAILED or returned non-zero exit | rc=%d"', result.returncode)
-        logger.debug('"Forge stderr: %s"', stderr[:2000])
+        logger.warning('Simulation FAILED or returned non-zero exit | rc=%d', result.returncode)
+        logger.debug('Forge stderr: %s', stderr[:2000])
 
     return SimulationResult(
         success=passed,

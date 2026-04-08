@@ -86,7 +86,7 @@ def fetch_uniswap_v3_price(pair: str, pool_address: str) -> PriceTick | None:
 
         block = config.w3.eth.block_number
 
-        logger.debug('"Uniswap V3 %s price: %s"', pair, price)
+        logger.debug('Uniswap V3 %s price: %s', pair, price)
         return PriceTick(
             pair=pair,
             dex="uniswap_v3",
@@ -95,7 +95,7 @@ def fetch_uniswap_v3_price(pair: str, pool_address: str) -> PriceTick | None:
             timestamp=time.time(),
         )
     except Exception as exc:
-        logger.warning('"Uniswap V3 price fetch failed for %s: %s"', pair, exc)
+        logger.warning('Uniswap V3 price fetch failed for %s: %s', pair, exc)
         return None
 
 
@@ -132,7 +132,7 @@ def fetch_sushiswap_price(pair: str, pair_address: str) -> PriceTick | None:
 
         block = config.w3.eth.block_number
 
-        logger.debug('"SushiSwap %s price: %s"', pair, price)
+        logger.debug('SushiSwap %s price: %s', pair, price)
         return PriceTick(
             pair=pair,
             dex="sushiswap",
@@ -141,7 +141,7 @@ def fetch_sushiswap_price(pair: str, pair_address: str) -> PriceTick | None:
             timestamp=time.time(),
         )
     except Exception as exc:
-        logger.warning('"SushiSwap price fetch failed for %s: %s"', pair, exc)
+        logger.warning('SushiSwap price fetch failed for %s: %s', pair, exc)
         return None
 
 
@@ -154,7 +154,7 @@ async def monitor_prices(queue: asyncio.Queue, poll_interval: float = 2.0) -> No
 
     poll_interval: seconds between full refresh cycles.
     """
-    logger.info('"Price monitor started — polling every %ss"', poll_interval)
+    logger.info('Price monitor started — polling every %ss', poll_interval)
 
     while True:
         for base, quote, fee in config.TARGET_PAIRS:

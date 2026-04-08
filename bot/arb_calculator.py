@@ -127,8 +127,7 @@ def check_opportunity(
         gross_profit_usd - aave_fee_usd - swap_fees_usd - slippage_cost_usd - gas_cost_usd
     )
 
-    logger.info(
-        '"Arb check %s | buy=%s@%.4f sell=%s@%.4f spread=%.4f%% net_profit=%.2f USD"',
+    logger.info('Arb check %s | buy=%s@%.4f sell=%s@%.4f spread=%.4f%% net_profit=%.2f USD',
         tick_a.pair,
         buy_tick.dex,
         price_buy,

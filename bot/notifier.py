@@ -42,10 +42,10 @@ def _send_discord(message: str) -> bool:
             timeout=10,
         )
         resp.raise_for_status()
-        logger.info('"Discord alert sent"')
+        logger.info('Discord alert sent')
         return True
     except Exception as exc:
-        logger.error('"Discord send failed: %s"', exc)
+        logger.error('Discord send failed: %s', exc)
         return False
 
 
@@ -62,10 +62,10 @@ def _send_telegram(message: str) -> bool:
             timeout=10,
         )
         resp.raise_for_status()
-        logger.info('"Telegram alert sent"')
+        logger.info('Telegram alert sent')
         return True
     except Exception as exc:
-        logger.error('"Telegram send failed: %s"', exc)
+        logger.error('Telegram send failed: %s', exc)
         return False
 
 
@@ -78,7 +78,7 @@ def send(message: str, pair: str) -> bool:
     Silently skips if within rate-limit window for *pair*.
     """
     if _rate_limited(pair):
-        logger.debug('"Rate limit active for %s — skipping notification"', pair)
+        logger.debug('Rate limit active for %s — skipping notification', pair)
         return False
 
     sent = _send_discord(message) or _send_telegram(message)
@@ -86,9 +86,7 @@ def send(message: str, pair: str) -> bool:
     if sent:
         _mark_sent(pair)
     else:
-        logger.warning(
-            '"No notification channel configured or all sends failed. '
-            'Set DISCORD_WEBHOOK_URL or TELEGRAM_BOT_TOKEN+TELEGRAM_CHAT_ID in .env"'
-        )
+        logger.warning('No notification channel configured or all sends failed. '
+            'Set DISCORD_WEBHOOK_URL or TELEGRAM_BOT_TOKEN+TELEGRAM_CHAT_ID in .env')
 
     return sent
