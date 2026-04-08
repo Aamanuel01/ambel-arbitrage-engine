@@ -31,7 +31,7 @@ An automated Flash Loan arbitrage engine for Polygon, bridging Uniswap V3 and Su
                                │  (future: live execution)
                                ▼
           ┌────────────────────────────────────┐
-          │  ArbitrageExecutor.sol (Polygon)   │
+          │  ArbitrageBot.sol (Polygon)        │
           │  Aave V3 Flash Loan → Uni V3 swap  │
           │  → SushiSwap swap → repay + profit │
           └────────────────────────────────────┘
@@ -47,10 +47,10 @@ An automated Flash Loan arbitrage engine for Polygon, bridging Uniswap V3 and Su
 ambel-arbitrage-engine/
 ├── contracts/
 │   ├── src/
-│   │   ├── ArbitrageExecutor.sol      # Core flash loan + swap contract
+│   │   ├── ArbitrageBot.sol         # Core flash loan + swap contract
 │   │   └── interfaces/                # Minimal Aave / Uniswap / SushiSwap interfaces
 │   ├── test/
-│   │   └── ArbitrageExecutor.t.sol   # Foundry fork tests
+│   │   └── ArbitrageBot.t.sol      # Foundry fork tests
 │   ├── script/
 │   │   └── Deploy.s.sol              # Foundry deployment script
 │   └── foundry.toml
@@ -159,7 +159,7 @@ forge test --fork-url $POLYGON_WS_RPC_URL --match-test testArbitrageSimulation -
 5. If Gemini does not recommend `SKIP`, **simulation** runs `forge test --fork-url` against Polygon mainnet fork.
 6. If the simulation passes, **notifier** sends a Gemini-formatted alert to Discord or Telegram.
 
-**No live execution occurs in the MVP.** The `requestFlashLoan` function on `ArbitrageExecutor.sol` is only callable from the contract owner and is never invoked by the Python bot in this phase.
+**No live execution occurs in the MVP.** The `requestFlashLoan` function on `ArbitrageBot.sol` is only callable from the contract owner and is never invoked by the Python bot in this phase.
 
 ---
 
@@ -180,7 +180,7 @@ forge test --fork-url $POLYGON_WS_RPC_URL --match-test testArbitrageSimulation -
 - **Never commit `.env`** — it is in `.gitignore`.
 - The `DEPLOYER_PRIVATE_KEY` is used only for Foundry deployment scripts. Do not fund this wallet on mainnet during MVP.
 - Production deployments should use AWS KMS instead of raw private keys.
-- The `ArbitrageExecutor` contract has an `onlyOwner` guard on `requestFlashLoan` and `withdraw`.
+- The `ArbitrageBot` contract has an `onlyOwner` guard on `requestFlashLoan` and `withdraw`.
 
 ---
 
