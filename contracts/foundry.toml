@@ -1,0 +1,22 @@
+[profile.default]
+src = "src"
+out = "out"
+libs = ["lib"]
+test = "test"
+script = "script"
+
+# Polygon mainnet fork — set POLYGON_WS_RPC_URL in your .env
+# Pass via CLI: forge test --fork-url $POLYGON_WS_RPC_URL
+# or set here for convenience (do NOT commit a live RPC key)
+# rpc_endpoints.polygon = "${POLYGON_WS_RPC_URL}"
+
+[rpc_endpoints]
+polygon = "${POLYGON_WS_RPC_URL}"
+
+[profile.default.fuzz]
+runs = 256
+
+[fmt]
+line_length = 120
+tab_width = 4
+bracket_spacing = true
