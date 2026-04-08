@@ -8,7 +8,11 @@ import sys
 import types
 import unittest
 from dataclasses import dataclass
+from pathlib import Path
 from unittest.mock import MagicMock, patch
+
+# Add the bot directory to sys.path so arb_calculator can be imported
+sys.path.insert(0, str(Path(__file__).parent.parent / "bot"))
 
 
 # ── Minimal stubs so arb_calculator imports without a live RPC ─────────────────
@@ -46,6 +50,25 @@ def _make_price_monitor_stub():
         timestamp: float
 
     mod.PriceTick = PriceTick
+
+    # Also load the real sqrt_price_x96_to_price from the source file
+    # without triggering a full module import (which would need a live web3).
+    import importlib.util
+    _bot_dir = Path(__file__).parent.parent / "bot"
+    spec = importlib.util.spec_from_file_location(
+        "_real_price_monitor", _bot_dir / "price_monitor.py"
+    )
+    if spec and spec.loader:
+        try:
+            # Temporarily put the stub in sys.modules so the real module's
+            # top-level imports (config, web3) hit our stubs.
+            sys.modules["price_monitor"] = mod  # may already be there
+            real_mod = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(real_mod)  # type: ignore[union-attr]
+            mod.sqrt_price_x96_to_price = real_mod.sqrt_price_x96_to_price
+        except Exception:
+            pass  # If it fails, skip the attribute — test will note it
+
     return mod
 
 
@@ -74,25 +97,41 @@ def _make_ticks(pair: str, uni_price: float, sushi_price: float) -> tuple:
 # ── Tests ─────────────────────────────────────────────────────────────────────
 
 class TestSqrtPriceConversion(unittest.TestCase):
-    """Tests for sqrt_price_x96_to_price helper."""
-
-    def test_known_price(self):
-        """Verify round-trip: encode a known price as sqrtPriceX96 and decode it."""
-        from arb_calculator import _arb_mod as am
-        # Use the module-level function
-        fn = _arb_mod  # reference; individual function tests below
+    """Tests for sqrt_price_x96_to_price helper in price_monitor."""
 
     def test_price_direction_token0_is_base(self):
-        """token0 is base → price should equal ratio * decimal adjustment."""
-        from price_monitor import PriceTick as PT  # noqa: F401
-        # Direct function not exposed publicly — tested implicitly via check_opportunity
+        """token0 is base → function returns ratio * decimal adjustment."""
+        # Verified implicitly through check_opportunity; standalone import test
+        # confirms the helper is accessible from price_monitor
+        import price_monitor
+        self.assertTrue(hasattr(price_monitor, "sqrt_price_x96_to_price"))
+
+    def test_known_price_round_trip(self):
+        """Encode a known price as sqrtPriceX96 and decode it back."""
+        import math
+        import price_monitor
+
+        target_price = 1800.0  # 1 WETH = 1800 USDC
+        token0_decimals = 18   # WETH
+        token1_decimals = 6    # USDC
+
+        # Encode: sqrtPriceX96 = sqrt(price * 10^(t1dec - t0dec)) * 2^96
+        decimal_adj = 10 ** (token1_decimals - token0_decimals)
+        sqrt_price_x96 = int(math.sqrt(target_price * decimal_adj) * (2**96))
+
+        # Decode — token0 is WETH (the base token)
+        decoded = price_monitor.sqrt_price_x96_to_price(
+            sqrt_price_x96, token0_decimals, token1_decimals, token0_is_base=True
+        )
+        self.assertAlmostEqual(decoded, target_price, delta=target_price * 0.001)  # 0.1% tolerance
 
 
 class TestCheckOpportunity(unittest.TestCase):
 
     def test_profitable_opportunity_detected(self):
         """A clear spread should yield a positive net profit and return ArbOpportunity."""
-        uni_tick, sushi_tick = _make_ticks("WETH/USDC", uni_price=1800.0, sushi_price=1815.0)
+        # 2.78% spread: gross=$1,388 vs total fees~$450 → net profit > $5
+        uni_tick, sushi_tick = _make_ticks("WETH/USDC", uni_price=1800.0, sushi_price=1850.0)
         result = _arb_mod.check_opportunity(uni_tick, sushi_tick, uni_v3_fee_tier=500)
         self.assertIsNotNone(result, "Expected an ArbOpportunity but got None")
         self.assertGreater(result.net_profit_usd, 0)

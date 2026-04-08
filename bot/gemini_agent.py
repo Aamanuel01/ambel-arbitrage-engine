@@ -127,15 +127,14 @@ Respond with a structured risk assessment."""
                 ),
             )
             result = json.loads(response.text)
-            logger.info(
-                '"Gemini risk score for %s: %s (rec=%s)"',
+            logger.info('Gemini risk score for %s: %s (rec=%s)',
                 opportunity.pair,
                 result.get("risk_score"),
                 result.get("recommendation"),
             )
             return result
         except Exception as exc:
-            logger.error('"Gemini score_opportunity failed: %s — defaulting to SKIP"', exc)
+            logger.error('Gemini score_opportunity failed: %s — defaulting to SKIP', exc)
             return _SAFE_DEFAULT
 
     # ── Report formatting ─────────────────────────────────────────────────────
@@ -185,5 +184,5 @@ Data:
             )
             return response.text.strip()
         except Exception as exc:
-            logger.warning('"Gemini format_report failed: %s — using fallback"', exc)
+            logger.warning('Gemini format_report failed: %s — using fallback', exc)
             return fallback

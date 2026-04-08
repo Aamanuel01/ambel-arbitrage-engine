@@ -79,7 +79,7 @@ query PoolData($poolId: ID!) {
 def get_uniswap_pool_data(pool_address: str) -> dict:
     """Fetch TVL, 24h volume, and OHLC for a Uniswap V3 pool."""
     if not config.THE_GRAPH_API_KEY:
-        logger.warning('"THE_GRAPH_API_KEY not set — skipping Uniswap V3 graph query"')
+        logger.warning('THE_GRAPH_API_KEY not set — skipping Uniswap V3 graph query')
         return {}
 
     url = _UNISWAP_V3_SUBGRAPH.format(api_key=config.THE_GRAPH_API_KEY)
@@ -92,7 +92,7 @@ def get_uniswap_pool_data(pool_address: str) -> dict:
     try:
         return _cached(key, _fetch)
     except Exception as exc:
-        logger.warning('"Uniswap V3 graph query failed: %s"', exc)
+        logger.warning('Uniswap V3 graph query failed: %s', exc)
         return {}
 
 
@@ -118,7 +118,7 @@ query PairData($pairId: ID!) {
 def get_sushiswap_pair_data(pair_address: str) -> dict:
     """Fetch TVL and 24h volume for a SushiSwap pair."""
     if not config.THE_GRAPH_API_KEY:
-        logger.warning('"THE_GRAPH_API_KEY not set — skipping SushiSwap graph query"')
+        logger.warning('THE_GRAPH_API_KEY not set — skipping SushiSwap graph query')
         return {}
 
     url = _SUSHISWAP_SUBGRAPH.format(api_key=config.THE_GRAPH_API_KEY)
@@ -131,7 +131,7 @@ def get_sushiswap_pair_data(pair_address: str) -> dict:
     try:
         return _cached(key, _fetch)
     except Exception as exc:
-        logger.warning('"SushiSwap graph query failed: %s"', exc)
+        logger.warning('SushiSwap graph query failed: %s', exc)
         return {}
 
 

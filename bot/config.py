@@ -114,6 +114,6 @@ AAVE_V3_POOL_ABI = load_abi("aave_v3_pool.json")
 # ── Logging ───────────────────────────────────────────────────────────────────
 logging.basicConfig(
     level=logging.INFO,
-    format='{"time": "%(asctime)s", "level": "%(levelname)s", "module": "%(name)s", "msg": %(message)s}',
+    format='{"time": "%(asctime)s", "level": "%(levelname)s", "module": "%(name)s", "msg": "%(message)s"}',
     datefmt="%Y-%m-%dT%H:%M:%S",
 )

@@ -58,8 +58,7 @@ async def process_tick(tick: PriceTick) -> None:
     if opportunity is None:
         return
 
-    logger.info(
-        '"Opportunity found: %s | net_profit=$%.2f | spread=%.4f%%"',
+    logger.info('Opportunity found: %s | net_profit=$%.2f | spread=%.4f%%',
         opportunity.pair,
         opportunity.net_profit_usd,
         opportunity.spread_pct,
@@ -76,26 +75,24 @@ async def process_tick(tick: PriceTick) -> None:
     )
 
     recommendation = risk.get("recommendation", "SKIP")
-    logger.info(
-        '"Gemini recommendation: %s (risk=%s/10) for %s"',
+    logger.info('Gemini recommendation: %s (risk=%s/10) for %s',
         recommendation,
         risk.get("risk_score"),
         opportunity.pair,
     )
 
     if recommendation == "SKIP":
-        logger.info('"Skipping %s per Gemini recommendation"', opportunity.pair)
+        logger.info('Skipping %s per Gemini recommendation', opportunity.pair)
         return
 
     # ── Step 4: Foundry simulation ────────────────────────────────────────────
     sim_result = await asyncio.get_event_loop().run_in_executor(None, simulation.run)
 
     if not sim_result.success:
-        logger.warning('"Simulation failed for %s — not sending alert"', opportunity.pair)
+        logger.warning('Simulation failed for %s — not sending alert', opportunity.pair)
         return
 
-    logger.info(
-        '"Simulation PASSED for %s | simulated_profit=%d raw units | gas=%d"',
+    logger.info('Simulation PASSED for %s | simulated_profit=%d raw units | gas=%d',
         opportunity.pair,
         sim_result.simulated_profit_wei,
         sim_result.gas_used,
@@ -115,7 +112,7 @@ async def consume_ticks(queue: asyncio.Queue) -> None:
         try:
             await process_tick(tick)
         except Exception as exc:
-            logger.error('"Unhandled error processing tick for %s: %s"', tick.pair, exc)
+            logger.error('Unhandled error processing tick for %s: %s', tick.pair, exc)
         finally:
             queue.task_done()
 
@@ -123,13 +120,13 @@ async def consume_ticks(queue: asyncio.Queue) -> None:
 # ── Entry point ───────────────────────────────────────────────────────────────
 
 async def main() -> None:
-    logger.info('"Ambel Arbitrage Bot starting (simulation mode)"')
+    logger.info('Ambel Arbitrage Bot starting (simulation mode)')
 
     if not config.w3.is_connected():
-        logger.error('"Could not connect to Polygon WebSocket RPC — check POLYGON_WS_RPC_URL"')
+        logger.error('Could not connect to Polygon WebSocket RPC — check POLYGON_WS_RPC_URL')
         raise SystemExit(1)
 
-    logger.info('"Connected to Polygon — latest block: %d"', config.w3.eth.block_number)
+    logger.info('Connected to Polygon — latest block: %d', config.w3.eth.block_number)
 
     queue: asyncio.Queue = asyncio.Queue(maxsize=1000)
 
@@ -139,7 +136,7 @@ async def main() -> None:
     try:
         await asyncio.gather(monitor_task, consumer_task)
     except asyncio.CancelledError:
-        logger.info('"Bot shutting down"')
+        logger.info('Bot shutting down')
     finally:
         monitor_task.cancel()
         consumer_task.cancel()
