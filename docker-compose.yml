@@ -1,0 +1,19 @@
+version: "3.9"
+
+services:
+  arbitrage-bot:
+    build: .
+    image: ambel-arbitrage-bot:latest
+    container_name: ambel-arbitrage-bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      # Mount ABIs read-only so they can be updated without rebuilding
+      - ./abis:/app/abis:ro
+    # No ports exposed — daemon process only
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "5"
