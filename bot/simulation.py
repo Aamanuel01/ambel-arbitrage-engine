@@ -52,7 +52,6 @@ def run(fork_url: str | None = None) -> SimulationResult:
         "--fork-url", rpc_url,
         "--match-test", "testArbitrageSimulation",
         "-vv",
-        "--no-match-contract", "^$",  # no exclusions
     ]
 
     env = {**os.environ, "POLYGON_WS_RPC_URL": rpc_url}
