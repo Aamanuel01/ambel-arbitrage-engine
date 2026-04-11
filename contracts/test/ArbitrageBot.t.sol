@@ -59,7 +59,8 @@ contract ArbBotTest is Test {
 
     // ── testArbitrageSimulation ───────────────────────────────────────────────────
     /// @notice Runs the full two-leg swap against a Polygon fork.
-    ///         Logs simulated profit; passes as long as no unexpected revert.
+    ///         If the trade reverts (e.g. on a balanced fork with no spread), the test
+    ///         fails — this is intentional: simulation success requires a profitable trade.
     function testArbitrageSimulation() public {
         uint256 loanAmount = 10_000e6; // 10,000 USDC
 
@@ -79,18 +80,17 @@ contract ArbBotTest is Test {
         uint256 balanceBefore = IERC20(USDC).balanceOf(owner);
 
         vm.prank(owner);
-        try bot.requestFlashLoan(USDC, loanAmount, params) {
-            uint256 balanceAfter = IERC20(USDC).balanceOf(owner);
-            uint256 profit = balanceAfter - balanceBefore;
-            console.log("Simulated profit (USDC 6-dec):", profit);
-        } catch (bytes memory reason) {
-            console.logBytes(reason);
-            console.log("testArbitrageSimulation: trade reverted (expected on balanced fork)");
-        }
+        bot.requestFlashLoan(USDC, loanAmount, params);
+
+        uint256 profit = IERC20(USDC).balanceOf(owner) - balanceBefore;
+        console.log("Simulated profit (USDC 6-dec):", profit);
     }
 
     // ── testRevertWhenUnprofitable ────────────────────────────────────────────────
-    /// @notice Confirms the BelowMinProfit guard fires when minProfit is set impossibly high.
+    /// @notice Confirms the arbitrage pipeline reverts when minProfit cannot be satisfied.
+    ///         On a real fork the round-trip swap fees (~0.65%) cause the trade to revert
+    ///         at the SushiSwap minimum-output check before reaching BelowMinProfit; both
+    ///         are correct reverts that protect capital.
     function testRevertWhenUnprofitable() public {
         uint256 loanAmount = 100e6; // 100 USDC
 

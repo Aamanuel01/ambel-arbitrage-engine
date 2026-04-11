@@ -81,11 +81,12 @@ def run(fork_url: str | None = None) -> SimulationResult:
 
     logger.debug('Forge stdout: %s', stdout[:2000])
 
-    # Determine success: forge exits 0 and output contains no FAIL
-    passed = result.returncode == 0 and "FAIL" not in stdout.upper()
+    # Determine success: forge exits 0, output contains no FAIL, and the profit
+    # log line is present (absent means the trade reverted before logging it).
+    profit_match = _PROFIT_PATTERN.search(stdout)
+    passed = result.returncode == 0 and "FAIL" not in stdout.upper() and profit_match is not None
 
     # Extract simulated profit from console.log output
-    profit_match = _PROFIT_PATTERN.search(stdout)
     simulated_profit = int(profit_match.group(1)) if profit_match else 0
 
     # Extract gas used
