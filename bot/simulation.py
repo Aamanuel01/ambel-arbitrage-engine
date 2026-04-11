@@ -87,6 +87,11 @@ def run(fork_url: str | None = None) -> SimulationResult:
     passed = result.returncode == 0 and "FAIL" not in stdout.upper() and profit_match is not None
 
     # Extract simulated profit from console.log output
+    # Determine success: forge exits 0 and output contains no FAIL
+    passed = result.returncode == 0 and "FAIL" not in stdout.upper()
+
+    # Extract simulated profit from console.log output
+    profit_match = _PROFIT_PATTERN.search(stdout)
     simulated_profit = int(profit_match.group(1)) if profit_match else 0
 
     # Extract gas used
