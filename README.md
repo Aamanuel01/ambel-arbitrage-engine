@@ -180,7 +180,7 @@ forge test --fork-url $POLYGON_WS_RPC_URL --match-test testArbitrageSimulation -
 - **Never commit `.env`** — it is in `.gitignore`.
 - The `DEPLOYER_PRIVATE_KEY` is used only for Foundry deployment scripts. Do not fund this wallet on mainnet during MVP.
 - Production deployments should use AWS KMS instead of raw private keys.
-- The `ArbitrageBot` contract has an `onlyOwner` guard on `requestFlashLoan` and `withdraw`.
+- The `ArbitrageBot` contract has an `onlyOwner` guard on `requestFlashLoan`, `withdrawProfits(address)`, and `withdrawNative()`.
 
 ---
 

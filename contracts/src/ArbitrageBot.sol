@@ -26,11 +26,12 @@ contract ArbitrageBot is IFlashLoanSimpleReceiver, Ownable {
     IPool public immutable POOL;
 
     // ── Custom errors ─────────────────────────────────────────────────────────────
-    error NotOwner();
     error NotAavePool();
     error UnexpectedInitiator();
     error InsufficientRepayBalance(uint256 balance, uint256 required);
     error BelowMinProfit(uint256 profit, uint256 minProfit);
+    error NoBalanceToWithdraw();
+    error NativeTransferFailed();
 
     // ── Events ────────────────────────────────────────────────────────────────────
     event ArbitrageExecuted(
@@ -197,7 +198,7 @@ contract ArbitrageBot is IFlashLoanSimpleReceiver, Ownable {
     function withdrawProfits(address tokenAddress) external onlyOwner {
         IERC20 token = IERC20(tokenAddress);
         uint256 balance = token.balanceOf(address(this));
-        require(balance > 0, "No profits to withdraw");
+        if (balance == 0) revert NoBalanceToWithdraw();
         token.safeTransfer(owner(), balance);
     }
 
@@ -206,9 +207,9 @@ contract ArbitrageBot is IFlashLoanSimpleReceiver, Ownable {
      */
     function withdrawNative() external onlyOwner {
         uint256 balance = address(this).balance;
-        require(balance > 0, "No native balance");
+        if (balance == 0) revert NoBalanceToWithdraw();
         (bool success,) = payable(owner()).call{value: balance}("");
-        require(success, "Transfer failed");
+        if (!success) revert NativeTransferFailed();
     }
 
     // Receive native tokens sent directly to the contract
