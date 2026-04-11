@@ -92,18 +92,6 @@ contract ArbBotTest is Test {
     ///         On a real fork the round-trip swap fees (~0.65%) cause the trade to revert
     ///         at the SushiSwap minimum-output check before reaching BelowMinProfit; both
     ///         are correct reverts that protect capital.
-        try bot.requestFlashLoan(USDC, loanAmount, params) {
-            uint256 balanceAfter = IERC20(USDC).balanceOf(owner);
-            uint256 profit = balanceAfter - balanceBefore;
-            console.log("Simulated profit (USDC 6-dec):", profit);
-        } catch (bytes memory reason) {
-            console.logBytes(reason);
-            console.log("testArbitrageSimulation: trade reverted (expected on balanced fork)");
-        }
-    }
-
-    // ── testRevertWhenUnprofitable ────────────────────────────────────────────────
-    /// @notice Confirms the BelowMinProfit guard fires when minProfit is set impossibly high.
     function testRevertWhenUnprofitable() public {
         uint256 loanAmount = 100e6; // 100 USDC
 

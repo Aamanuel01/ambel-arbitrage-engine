@@ -26,7 +26,6 @@ contract ArbitrageBot is IFlashLoanSimpleReceiver, Ownable {
     IPool public immutable POOL;
 
     // ── Custom errors ─────────────────────────────────────────────────────────────
-    error NotOwner();
     error NotAavePool();
     error UnexpectedInitiator();
     error InsufficientRepayBalance(uint256 balance, uint256 required);
@@ -200,7 +199,6 @@ contract ArbitrageBot is IFlashLoanSimpleReceiver, Ownable {
         IERC20 token = IERC20(tokenAddress);
         uint256 balance = token.balanceOf(address(this));
         if (balance == 0) revert NoBalanceToWithdraw();
-        require(balance > 0, "No profits to withdraw");
         token.safeTransfer(owner(), balance);
     }
 
@@ -212,9 +210,6 @@ contract ArbitrageBot is IFlashLoanSimpleReceiver, Ownable {
         if (balance == 0) revert NoBalanceToWithdraw();
         (bool success,) = payable(owner()).call{value: balance}("");
         if (!success) revert NativeTransferFailed();
-        require(balance > 0, "No native balance");
-        (bool success,) = payable(owner()).call{value: balance}("");
-        require(success, "Transfer failed");
     }
 
     // Receive native tokens sent directly to the contract
