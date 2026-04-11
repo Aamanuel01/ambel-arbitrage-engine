@@ -10,7 +10,6 @@ import unittest
 from dataclasses import dataclass
 from pathlib import Path
 from unittest.mock import MagicMock
-from unittest.mock import MagicMock, patch
 
 # Add the bot directory to sys.path so arb_calculator can be imported
 sys.path.insert(0, str(Path(__file__).parent.parent / "bot"))
